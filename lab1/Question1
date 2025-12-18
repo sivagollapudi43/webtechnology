@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Marksheet</title>
+</head>
+<body>
+
+<h2>Student Marksheet</h2>
+
+<table   border="1" style="border-color: black;; border-collapse: collapse; text-align: center;">
+    <thead>
+        <tr>
+            <th>Roll No</th>
+            <th>Name</th>
+            <th>Subject 1</th>
+            <th>Subject 2</th>
+            <th>Subject 3</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>101</td>
+            <td>Aarav</td>
+            <td>78</td>
+            <td>85</td>
+            <td>90</td>
+            <td>253</td>
+        </tr>
+
+        <tr>
+            <td>102</td>
+            <td>Diya</td>
+            <td>88</td>
+            <td>79</td>
+            <td>92</td>
+            <td>259</td>
+        </tr>
+
+        <tr>
+            <td>103</td>
+            <td>Rohan</td>
+            <td>67</td>
+            <td>74</td>
+            <td>81</td>
+            <td>222</td>
+        </tr>
+
+        <tr>
+            <td>104</td>
+            <td>Ananya</td>
+            <td>91</td>
+            <td>89</td>
+            <td>94</td>
+            <td>274</td>
+        </tr>
+
+        <tr>
+            <td>105</td>
+            <td>Kabir</td>
+            <td>73</td>
+            <td>68</td>
+            <td>77</td>
+            <td>218</td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
