@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Product Card</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .product-card {
+            width: 280px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .product-card img {
+            width: 100%;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .product-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 8px 0 6px;
+            color: #2c3e50;
+        }
+
+        .product-desc {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 14px;
+        }
+
+        .buy-btn {
+            display: inline-block;
+            padding: 10px 18px;
+            background-color: #2980b9;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+        }
+
+        .buy-btn:hover {
+            background-color: #1f6390;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="product-card">
+    <img src="https://cdn.shopify.com/s/files/1/0057/8938/4802/files/Rockerz_650_pp_renders_main_banner.124.png?v=1740735495&width=400" alt="Wireless Headphones">
+    <div class="product-title">Wireless Headphones</div>
+    <div class="product-desc">
+        Experience immersive sound with noise cancellation and 20-hour battery life.
+    </div>
+    <div class="product-price">$79.99</div>
+    <a href="https://www.amazon.in/boAt-Rockerz-650-Pro-Headphones/dp/B0DV5HX4JZ/ref=sr_1_18?crid=1P4CC57H9K4T8&dib=eyJ2IjoiMSJ9.KXnjcmE5mYocM5bXerxrZWnFfx71iXJ2zeAYGerl_lzWuN-znAyWtpr8GXaqO_V_yHvmPvoF1Cld8QalwMiJmcpJAi8CRh4twaVorvlO21GRLYc9pFPk5S1vwExJCWiIfzN-BFM8D0QgZN-cKhx7UQsDKd4-SVgz5eLikw0r7peNGgIS6eEQU_3xzEPBM5S4Ym_sylBcHuYL9x3olEDJnNoNyzQVKQj2oaGZhipDk1E.gDwW94WGYG8rVsrPd0CGVLVzcl3fzDQV96Pwj2Rki8E&dib_tag=se&keywords=wireless%2Bheadset&qid=1766033309&sprefix=wireless%2Beheads%2Caps%2C1657&sr=8-18&th=1" target="_blank" class="buy-btn">Buy Now</a>
+</div>
+
+</body>
+</html>
