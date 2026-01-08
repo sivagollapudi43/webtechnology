@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 Canvas Exercise 1</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 300;
+            font-size: 2rem;
+        }
+        canvas {
+            width: 500px;
+            height: 300px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: rgb(110, 98, 75);
+        }
+        .info {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTML5 Canvas Graphics</h1>
+    <canvas id="myCanvas" width="500" height="300"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#007bff';
+        ctx.fillRect(50, 50, 140, 90);
+
+       
+        ctx.beginPath();
+        ctx.fillStyle = '#dc3545';
+        ctx.arc(380, 105, 45, 0, 2 * Math.PI);
+        ctx.fill();
+
+       
+        ctx.beginPath();
+        ctx.strokeStyle = '#28a745';
+        ctx.lineWidth = 4;
+        ctx.moveTo(60, 190);
+        ctx.lineTo(440, 190);
+        ctx.stroke();
+
+        
+        ctx.font = 'bold 24px sans-serif';
+        ctx.fillStyle = '#212529';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText('HTML5 Canvas', 250, 285);
+    </script>
+</body>
+</html>
