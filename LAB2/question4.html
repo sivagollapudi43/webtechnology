@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced LocalStorage User Management</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fb;
+            padding: 30px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-weight: 600;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            padding: 30px;
+        }
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #444;
+            font-size: 14px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"] {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            font-size: 15px;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4c6fff;
+            box-shadow: 0 0 0 3px rgba(76,111,255,0.15);
+        }
+        .error {
+            font-size: 13px;
+            color: #e63946;
+            margin-top: 5px;
+            min-height: 18px;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        #submitBtn {
+            background: #4c6fff;
+            color: white;
+        }
+        #submitBtn:hover { background: #3b5bd9; }
+        #clearBtn {
+            background: #e63946;
+            color: white;
+        }
+        #clearBtn:hover { background: #d32f2f; }
+        .message {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .message.success { color: #2e7d32; }
+        .message.error { color: #e63946; }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 10px;
+            font-size: 14px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        th {
+            background: #f8f9fa;
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        tbody tr:hover {
+            background: #eef2ff;
+        }
+        .btn-delete {
+            padding: 6px 12px;
+            background: #e63946;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+        .btn-toggle-pwd {
+            background: none;
+            border: none;
+            color: #4c6fff;
+            cursor: pointer;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+        .no-users {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Registration & Management</h1>
+    <div class="container">
+        <form id="userForm" novalidate>
+            <div class="form-group">
+                <label for="name">Full Name <span style="color: #e63946;">*</span></label>
+                <input type="text" id="name" placeholder="Enter full name" required>
+                <span class="error" id="nameError"></span>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address <span style="color: #e63946;">*</span></label>
+                <input type="email" id="email" placeholder="example@domain.com" required>
+                <span class="error" id="emailError"></span>
+            </div>
+            <div class="form-group">
+                <label for="mobile">Mobile Number <span style="color: #e63946;">*</span></label>
+                <input type="tel" id="mobile" placeholder="10-digit number" required>
+                <span class="error" id="mobileError"></span>
+            </div>
+            <div class="form-group">
+                <label for="password">Password <span style="color: #e63946;">*</span></label>
+                <input type="password" id="password" placeholder="Minimum 6 characters" required>
+                <span class="error" id="passwordError"></span>
+            </div>
+        </form>
+
+        <div class="actions">
+            <button type="button" id="submitBtn">Register User</button>
+            <button type="button" id="clearBtn">Clear All Users</button>
+            <span id="formMessage" class="message"></span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Mobile</th>
+                    <th>Password</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'users';
+        const getUsers = () => JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        const saveUsers = (users) => localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+            const msg = document.getElementById('formMessage');
+            msg.textContent = '';
+            msg.className = 'message';
+        }
+        function validateForm(name, email, mobile, password) {
+            clearErrors();
+            let isValid = true;
+            const users = getUsers();
+
+            if (!name.trim()) {
+                document.getElementById('nameError').textContent = 'Name is required';
+                isValid = false;
+            }
+            if (!email.trim()) {
+                document.getElementById('emailError').textContent = 'Email is required';
+                isValid = false;
+            } else if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+                document.getElementById('emailError').textContent = 'Email already registered';
+                isValid = false;
+            }
+            if (!mobile.trim()) {
+                document.getElementById('mobileError').textContent = 'Mobile number is required';
+                isValid = false;
+            } else if (!/^\d{10}$/.test(mobile)) {
+                document.getElementById('mobileError').textContent = 'Must be exactly 10 digits';
+                isValid = false;
+            }
+            if (!password) {
+                document.getElementById('passwordError').textContent = 'Password is required';
+                isValid = false;
+            } else if (password.length < 6) {
+                document.getElementById('passwordError').textContent = 'Password must be at least 6 characters';
+                isValid = false;
+            }
+
+            return isValid;
+        }
+        function handleSubmit() {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!validateForm(name, email, mobile, password)) return;
+
+            const users = getUsers();
+            users.push({
+                id: Date.now(),
+                name,
+                email,
+                mobile,
+                password 
+            });
+            saveUsers(users);
+
+            document.getElementById('formMessage').textContent = 'User registered successfully!';
+            document.getElementById('formMessage').className = 'message success';
+            document.getElementById('userForm').reset();
+            renderTable();
+        }
+        function renderTable() {
+            const users = getUsers();
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="no-users">No users registered yet.</td></tr>`;
+                return;
+            }
+            users.forEach((user, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${escapeHtml(user.name)}</td>
+                    <td>${escapeHtml(user.email)}</td>
+                    <td>${escapeHtml(user.mobile)}</td>
+                    <td>
+                        <span class="masked-pwd">••••••••</span>
+                        <button type="button" class="btn-toggle-pwd" onclick="togglePassword(this, '${user.password}')">
+                            Show
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn-delete" onclick="deleteUser(${user.id})">
+                            Delete
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        function togglePassword(btn, password) {
+            const span = btn.previousElementSibling;
+            if (span.textContent === '••••••••') {
+                span.textContent = escapeHtml(password);
+                btn.textContent = 'Hide';
+            } else {
+                span.textContent = '••••••••';
+                btn.textContent = 'Show';
+            }
+        }
+        function deleteUser(id) {
+            if (!confirm('Delete this user?')) return;
+            const users = getUsers().filter(u => u.id !== id);
+            saveUsers(users);
+            renderTable();
+        }
+        function clearAllUsers() {
+            if (!confirm('Are you sure you want to delete ALL users? This cannot be undone.')) return;
+            localStorage.removeItem(STORAGE_KEY);
+            renderTable();
+            document.getElementById('formMessage').textContent = 'All users have been cleared.';
+            document.getElementById('formMessage').className = 'message success';
+        }
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        document.getElementById('submitBtn').addEventListener('click', handleSubmit);
+        document.getElementById('clearBtn').addEventListener('click', clearAllUsers);
+        renderTable();
+    </script>
+</body>
+</html>
