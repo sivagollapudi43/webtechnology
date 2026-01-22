@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Adaptive Registration System</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #eef2f3;
+}
+
+.container {
+    width: 420px;
+    margin: 40px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 6px;
+}
+
+.valid { border: 2px solid green; }
+.invalid { border: 2px solid red; }
+
+.error {
+    font-size: 13px;
+    color: red;
+}
+
+#skillsBox { display: none; }
+
+button {
+    margin-top: 10px;
+    padding: 10px;
+    background: green;
+    color: white;
+    border: none;
+    width: 100%;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>Dynamic Registration</h2>
+
+<form id="form">
+
+<input id="name" placeholder="Name">
+<span class="error"></span>
+
+<input id="email" placeholder="Email">
+<span class="error"></span>
+
+<input type="password" id="password" placeholder="Password">
+<span class="error"></span>
+
+<input type="password" id="confirm" placeholder="Confirm Password">
+<span class="error"></span>
+
+<input type="number" id="age" placeholder="Age">
+<span class="error"></span>
+
+<select id="role">
+    <option value="">Select Role</option>
+    <option>Student</option>
+    <option>Teacher</option>
+    <option>Admin</option>
+</select>
+<span class="error"></span>
+
+<div id="skillsBox">
+    <input id="skills" placeholder="Enter Skills (comma separated)">
+    <span class="error"></span>
+</div>
+
+<button type="submit">Register</button>
+
+</form>
+</div>
+<script>
+const form = document.getElementById("form");
+const role = document.getElementById("role");
+const skillsBox = document.getElementById("skillsBox");
+
+form.addEventListener("input", validateForm);
+role.addEventListener("change", roleChanged);
+form.addEventListener("submit", submitForm);
+
+function roleChanged() {
+    skillsBox.style.display = 
+        (role.value === "Teacher" || role.value === "Admin") ? "block" : "none";
+    validateForm();
+}
+
+function validateForm() {
+    let status = true;
+
+    status &= validateName();
+    status &= validateEmail();
+    status &= validatePassword();
+    status &= validateConfirm();
+    status &= validateAge();
+    status &= validateRole();
+    status &= validateSkills();
+
+    return status;
+}
+
+function emptyCheck(input) {
+    if (input.value.trim() === "") {
+        showError(input, "Please fill this field");
+        return true;
+    }
+    return false;
+}
+
+function validateName() {
+    const name = document.getElementById("name");
+    if (emptyCheck(name)) return false;
+    return validateField(name, name.value.length >= 3, "Minimum 3 characters");
+}
+
+function validateEmail() {
+    const email = document.getElementById("email");
+    if (emptyCheck(email)) return false;
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return validateField(email, regex.test(email.value), "Invalid email format");
+}
+
+function validatePassword() {
+    const password = document.getElementById("password");
+    if (emptyCheck(password)) return false;
+
+    if (role.value === "Admin") {
+        const rule = /(?=.*[A-Z])(?=.*[0-9])(?=.*[@#$%!]).{8,}/;
+        return validateField(password, rule.test(password.value),
+        "Admin password must be strong");
+    } else {
+        return validateField(password, password.value.length >= 5,
+        "Minimum 5 characters");
+    }
+}
+
+function validateConfirm() {
+    const confirm = document.getElementById("confirm");
+    const password = document.getElementById("password").value;
+
+    if (emptyCheck(confirm)) return false;
+
+    if (confirm.value !== password) {
+        showError(confirm, "Password not matched");
+        return false;
+    }
+
+    showSuccess(confirm);
+    return true;
+}
+
+function validateAge() {
+    const age = document.getElementById("age");
+    if (emptyCheck(age)) return false;
+
+    let minAge = role.value === "Admin" ? 21 : 18;
+    return validateField(age, age.value >= minAge,
+        "Minimum age should be " + minAge);
+}
+
+function validateRole() {
+    const roleField = document.getElementById("role");
+    if (role.value === "") {
+        showError(roleField, "Please select a role");
+        return false;
+    }
+    showSuccess(roleField);
+    return true;
+}
+
+function validateSkills() {
+    const skills = document.getElementById("skills");
+
+    if (role.value === "Teacher" || role.value === "Admin") {
+        if (emptyCheck(skills)) return false;
+    }
+    return true;
+}
+
+function validateField(input, condition, message) {
+    if (!condition) {
+        showError(input, message);
+        return false;
+    }
+    showSuccess(input);
+    return true;
+}
+
+function showError(input, message) {
+    input.className = "invalid";
+    input.nextElementSibling.innerText = message;
+}
+
+function showSuccess(input) {
+    input.className = "valid";
+    input.nextElementSibling.innerText = "";
+}
+
+function submitForm(e) {
+    if (!validateForm()) {
+        e.preventDefault();
+        alert("Please correct the highlighted errors.");
+    } else {
+        alert("Registration Successful!");
+    }
+}
+</script>
+
+
