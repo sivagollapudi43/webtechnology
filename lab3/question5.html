@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Multi-Step Form – Strict Validation</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 620px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+      line-height: 1.5;
+    }
+
+    h1 { text-align: center; margin-bottom: 2rem; }
+
+    .progress-container { margin: 2rem 0 3rem; }
+
+    .progress-bar {
+      height: 12px;
+      background: #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6);
+      transition: width 0.4s ease;
+    }
+
+    .stage { display: none; }
+    .stage.active { display: block; }
+
+    .stage-header {
+      margin-bottom: 1.8rem;
+      color: #1f2937;
+    }
+
+    .form-group { margin-bottom: 1.6rem; }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    input.error {
+      border-color: #ef4444;
+      background-color: #fef2f2;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 0.875rem;
+      margin-top: 0.35rem;
+      min-height: 1.25rem;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2.5rem;
+    }
+
+    button {
+      padding: 0.75rem 1.8rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-prev {
+      background: #6b7280;
+      color: white;
+    }
+
+    .btn-next, .btn-submit {
+      background: #6366f1;
+      color: white;
+    }
+
+    .btn-next:hover, .btn-submit:hover { background: #4f46e5; }
+    .btn-prev:hover { background: #4b5563; }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .review-box {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      background: #f9fafb;
+      font-size: 0.95rem;
+    }
+
+    .review-row { margin-bottom: 0.4rem; }
+
+    .review-label {
+      font-weight: 600;
+      color: #374151;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Account Registration</h1>
+
+<div class="progress-container">
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</div>
+
+<form id="multiForm" novalidate>
+
+  <section class="stage active" id="s1">
+    <h2 class="stage-header">1. Personal Details</h2>
+
+    <div class="form-group">
+      <label for="fullname">Full Name <span style="color:#ef4444">*</span></label>
+      <input type="text" id="fullname" required minlength="3" maxlength="80">
+      <div class="error-message" data-for="fullname"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email Address <span style="color:#ef4444">*</span></label>
+      <input type="email" id="email" required>
+      <div class="error-message" data-for="email"></div>
+    </div>
+
+    <div class="buttons">
+      <button type="button" class="btn-prev" disabled>Back</button>
+      <button type="button" class="btn-next" onclick="tryGoNext(1)">Next</button>
+    </div>
+  </section>
+
+  <section class="stage" id="s2">
+    <h2 class="stage-header">2. Account Security</h2>
+
+    <div class="form-group">
+      <label for="username">Username <span style="color:#ef4444">*</span></label>
+      <input type="text" id="username" required minlength="4" maxlength="20">
+      <div class="error-message" data-for="username"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password <span style="color:#ef4444">*</span></label>
+      <input type="password" id="password" required minlength="8">
+      <div class="error-message" data-for="password"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="password2">Confirm Password <span style="color:#ef4444">*</span></label>
+      <input type="password" id="password2" required>
+      <div class="error-message" data-for="password2"></div>
+    </div>
+
+    <div class="buttons">
+      <button type="button" class="btn-prev" onclick="goPrev(2)">Back</button>
+      <button type="button" class="btn-next" onclick="tryGoNext(2)">Next</button>
+    </div>
+  </section>
+
+  <section class="stage" id="s3">
+    <h2 class="stage-header">3. Contact & Address</h2>
+
+    <div class="form-group">
+      <label for="phone">Mobile Number</label>
+      <input type="tel" id="phone" pattern="[0-9]{10}" placeholder="10 digits only">
+      <div class="error-message" data-for="phone"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="address">Street Address <span style="color:#ef4444">*</span></label>
+      <input type="text" id="address" required minlength="6">
+      <div class="error-message" data-for="address"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="city">City <span style="color:#ef4444">*</span></label>
+      <input type="text" id="city" required minlength="2">
+      <div class="error-message" data-for="city"></div>
+    </div>
+
+    <div class="buttons">
+      <button type="button" class="btn-prev" onclick="goPrev(3)">Back</button>
+      <button type="button" class="btn-next" onclick="tryGoNext(3)">Next</button>
+    </div>
+  </section>
+
+  <section class="stage" id="s4">
+    <h2 class="stage-header">4. Final Confirmation</h2>
+
+    <div class="form-group">
+      <label>Review your details:</label>
+      <div class="review-box" id="reviewBox"></div>
+    </div>
+
+    <div class="form-group">
+      <label>
+        <input type="checkbox" id="terms" required>
+        I accept the <strong>Terms of Service</strong> and <strong>Privacy Policy</strong>
+        <span style="color:#ef4444">*</span>
+      </label>
+      <div class="error-message" data-for="terms"></div>
+    </div>
+
+    <div class="buttons">
+      <button type="button" class="btn-prev" onclick="goPrev(4)">Back</button>
+      <button type="submit" class="btn-submit">Create Account</button>
+    </div>
+  </section>
+
+</form>
+
+<script>
+let currentStage = 1;
+const totalStages = 4;
+const formData = {};
+
+const progress = document.getElementById('progressFill');
+const stages = document.querySelectorAll('.stage');
+const reviewBox = document.getElementById('reviewBox');
+
+function updateProgress() {
+  const percent = ((currentStage - 1) / (totalStages - 1)) * 100;
+  progress.style.width = percent + '%';
+}
+
+function showStage(n) {
+  stages.forEach((el, i) => el.classList.toggle('active', i+1 === n));
+  currentStage = n;
+  updateProgress();
+  clearErrors(n);
+  if (n === 4) populateReview();
+}
+
+function clearErrors(stage) {
+  document.querySelectorAll(`#s${stage} .error-message`).forEach(el => el.textContent = '');
+  document.querySelectorAll(`#s${stage} input.error`).forEach(el => el.classList.remove('error'));
+}
+
+function setError(field, message) {
+  const input = document.getElementById(field);
+  const errEl = document.querySelector(`[data-for="${field}"]`);
+  if (input && errEl) {
+    input.classList.add('error');
+    errEl.textContent = message;
+  }
+}
+
+function validateStage(stage) {
+  clearErrors(stage);
+  let valid = true;
+
+  if (stage === 1) {
+    const name = document.getElementById('fullname').value.trim();
+    if (!name) { setError('fullname', 'Full name is required'); valid = false; }
+    else if (name.length < 3) { setError('fullname', 'Name too short (min 3 chars)'); valid = false; }
+
+    const email = document.getElementById('email').value.trim();
+    if (!email) { setError('email', 'Email is required'); valid = false; }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('email', 'Invalid email format'); valid = false;
+    }
+  } else if (stage === 2) {
+    const un = document.getElementById('username').value.trim();
+    if (!un) { setError('username', 'Username is required'); valid = false; }
+    else if (un.length < 4) { setError('username', 'Min 4 characters'); valid = false; }
+
+    const pw = document.getElementById('password').value;
+    if (!pw) { setError('password', 'Password is required'); valid = false; }
+    else if (pw.length < 8) { setError('password', 'Min 8 characters'); valid = false; }
+
+    const pw2 = document.getElementById('password2').value;
+    if (pw !== pw2) { setError('password2', 'Passwords do not match'); valid = false; }
+  } else if (stage === 3) {
+    const addr = document.getElementById('address').value.trim();
+    if (!addr) { setError('address', 'Address is required'); valid = false; }
+
+    const city = document.getElementById('city').value.trim();
+    if (!city) { setError('city', 'City is required'); valid = false; }
+
+    const phone = document.getElementById('phone').value.trim();
+    if (phone && !/^\d{10}$/.test(phone)) {
+      setError('phone', 'Enter valid 10-digit number'); valid = false;
+    }
+  } else if (stage === 4) {
+    if (!document.getElementById('terms').checked) {
+      setError('terms', 'You must accept the terms'); valid = false;
+    }
+  }
+
+  return valid;
+}
+
+function saveCurrentStage() {
+  const stageEl = document.getElementById(`s${currentStage}`);
+  stageEl.querySelectorAll('input, select').forEach(el => {
+    formData[el.id] = el.type === 'checkbox' ? el.checked : el.value.trim();
+  });
+}
+
+function populateReview() {
+  const safePassword = formData.password ? '********' : '';
+  reviewBox.innerHTML = `
+    <div class="review-row"><span class="review-label">Full Name:</span> ${formData.fullname || ''}</div>
+    <div class="review-row"><span class="review-label">Email:</span> ${formData.email || ''}</div>
+    <div class="review-row"><span class="review-label">Username:</span> ${formData.username || ''}</div>
+    <div class="review-row"><span class="review-label">Password:</span> ${safePassword}</div>
+    <div class="review-row"><span class="review-label">Mobile:</span> ${formData.phone || ''}</div>
+    <div class="review-row"><span class="review-label">Address:</span> ${formData.address || ''}</div>
+    <div class="review-row"><span class="review-label">City:</span> ${formData.city || ''}</div>
+  `;
+}
+
+function tryGoNext(from) {
+  if (validateStage(from)) {
+    saveCurrentStage();
+    if (from < totalStages) showStage(from + 1);
+  }
+}
+
+function goPrev(to) {
+  saveCurrentStage();
+  showStage(to - 1);
+}
+
+const multiForm = document.getElementById('multiForm');
+
+multiForm.addEventListener('submit', e => {
+  e.preventDefault();
+
+  if (!validateStage(4)) {
+    alert('Please accept the terms to continue.');
+    return;
+  }
+
+  saveCurrentStage();
+
+  console.log('Form submitted!', formData);
+  alert('Registration successful!\n\nCheck browser console for collected data.');
+
+  multiForm.reset();
+  Object.keys(formData).forEach(k => delete formData[k]);
+  showStage(1);
+});
+
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('blur', () => {
+    const stage = input.closest('.stage');
+    if (stage && stage.classList.contains('active')) {
+      validateStage(currentStage);
+    }
+  });
+});
+
+updateProgress();
+</script>
+
+</body>
+</html>

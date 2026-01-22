@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Activity Tracker - Clean Version</title>
+    <style>
+        :root {
+            --primary: #136940;
+            --primary-dark: #6059d7;
+            --danger: #e63946;
+            --success: #2da7c6;
+            --light: #f1f5f9;
+            --gray: #1c5fbd;
+            --dark: #181116;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            margin: 0;
+            padding: 20px;
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--dark);
+            margin: 0 0 2rem;
+            font-weight: 700;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: var(--primary);
+            color: white;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 1.15rem;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .alert-box {
+            background: #fff3cd;
+            color: #856404;
+            padding: 14px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border-left: 5px solid #f1c40f;
+            display: none;
+            font-weight: 500;
+        }
+
+        .log-area {
+            max-height: 520px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .log-area::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        .log-area::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+        .log-entry {
+            padding: 10px 14px;
+            margin: 8px 0;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.94rem;
+            border-left: 4px solid var(--primary);
+            transition: all 0.18s;
+        }
+
+        .log-entry:hover {
+            background: #f1f5f9;
+            transform: translateX(3px);
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 28px;
+        }
+
+        button {
+            padding: 12px 32px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.22s;
+            margin: 0 12px;
+        }
+
+        #resetBtn {
+            background: var(--danger);
+            color: white;
+        }
+
+        #resetBtn:hover {
+            background: #c53039;
+            transform: translateY(-2px);
+        }
+
+        #exportBtn {
+            background: var(--success);
+            color: white;
+        }
+
+        #exportBtn:hover {
+            background: #25a33e;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>User Activity Tracker</h1>
+
+    <div class="layout">
+        
+        <div class="card">
+            <div class="card-header">Live Statistics</div>
+            <div class="card-body">
+                <div class="stat-item">
+                    <span class="stat-label">Total Clicks</span>
+                    <span class="stat-value" id="clickCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Key Presses</span>
+                    <span class="stat-value" id="keyCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Focus Changes</span>
+                    <span class="stat-value" id="focusCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Last Event</span>
+                    <span id="lastEvent" style="font-weight:500; color:#475569;">—</span>
+                </div>
+
+                <div class="alert-box" id="suspiciousAlert">
+                    ⚠️ Warning: High click frequency detected!
+                </div>
+            </div>
+        </div>
+
+       
+        <div class="card">
+            <div class="card-header">Activity Log</div>
+            <div class="card-body">
+                <div class="log-area" id="logContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="resetBtn">Reset Monitor</button>
+        <button id="exportBtn">Export Log</button>
+    </div>
+</div>
+
+<script>
+const logContainer = document.getElementById('logContainer');
+const clickCountEl  = document.getElementById('clickCount');
+const keyCountEl    = document.getElementById('keyCount');
+const focusCountEl  = document.getElementById('focusCount');
+const lastEventEl   = document.getElementById('lastEvent');
+const alertBox      = document.getElementById('suspiciousAlert');
+
+let clickCounter = 0;
+let keyCounter   = 0;
+let focusCounter = 0;
+
+const CLICK_THRESHOLD = 15;
+const TIME_WINDOW_MS  = 5000;
+let recentClickTimes = [];
+
+function addLog(type, message) {
+    const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.textContent = `[${time}] ${type.padEnd(8)} → ${message}`;
+    logContainer.prepend(entry);
+
+   
+    if (logContainer.children.length > 300) {
+        logContainer.removeChild(logContainer.lastChild);
+    }
+
+    lastEventEl.textContent = `${type}: ${message}  (${time})`;
+}
+
+function updateStats(type) {
+    if (type === 'click') {
+        clickCounter++;
+        clickCountEl.textContent = clickCounter;
+
+        const now = Date.now();
+        recentClickTimes.push(now);
+        recentClickTimes = recentClickTimes.filter(t => now - t < TIME_WINDOW_MS);
+
+        if (recentClickTimes.length >= CLICK_THRESHOLD) {
+            alertBox.style.display = 'block';
+            setTimeout(() => { alertBox.style.display = 'none'; }, 10000);
+        }
+    }
+    else if (type === 'keydown') {
+        keyCounter++;
+        keyCountEl.textContent = keyCounter;
+    }
+    else if (type === 'focus' || type === 'blur') {
+        focusCounter++;
+        focusCountEl.textContent = focusCounter;
+    }
+}
+
+document.addEventListener('click', e => {
+    let target = e.target.tagName;
+    if (e.target.id) target += `#${e.target.id}`;
+    if (e.target.className) target += `.${e.target.className.split(' ').join('.')}`;
+
+    addLog('CLICK', `→ ${target}`);
+    updateStats('click');
+}, true);
+
+document.addEventListener('keydown', e => {
+    let key = e.key.length === 1 ? e.key : e.code;
+    let mods = [];
+    if (e.ctrlKey)  mods.push('Ctrl');
+    if (e.shiftKey) mods.push('Shift');
+    if (e.altKey)   mods.push('Alt');
+    if (e.metaKey)  mods.push('Meta');
+
+    const modStr = mods.length ? ` + ${mods.join(' + ')}` : '';
+
+    addLog('KEY', `${key}${modStr}`);
+    updateStats('keydown');
+}, true);
+
+document.addEventListener('focus', e => {
+    if (e.target === document.body) return;
+    let target = e.target.tagName;
+    if (e.target.id) target += `#${e.target.id}`;
+    if (e.target.type) target += ` (${e.target.type})`;
+
+    addLog('FOCUS', `→ ${target}`);
+    updateStats('focus');
+}, true);
+
+document.addEventListener('blur', e => {
+    if (e.target === document.body) return;
+    let target = e.target.tagName;
+    if (e.target.id) target += `#${e.target.id}`;
+
+    addLog('BLUR', `← ${target}`);
+}, true);
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+    if (!confirm('Reset all counters and clear log?')) return;
+
+    clickCounter = 0;
+    keyCounter = 0;
+    focusCounter = 0;
+    recentClickTimes = [];
+    alertBox.style.display = 'none';
+
+    clickCountEl.textContent = '0';
+    keyCountEl.textContent = '0';
+    focusCountEl.textContent = '0';
+    lastEventEl.textContent = '—';
+    logContainer.innerHTML = '';
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+    if (logContainer.children.length === 0) {
+        alert('No activity recorded yet.');
+        return;
+    }
+
+    const lines = Array.from(logContainer.children)
+        .map(el => el.textContent)
+        .reverse();
+
+    const text = [
+        `Activity Log Export - ${new Date().toLocaleString()}`,
+        '─'.repeat(60),
+        ...lines,
+        '─'.repeat(60),
+        `Total entries: ${lines.length}`
+    ].join('\n');
+
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `activity-log-${new Date().toISOString().slice(0,10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>

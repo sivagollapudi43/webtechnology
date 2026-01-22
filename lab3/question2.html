@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shopping Cart – Quantity Discounts</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f8fafc;
+      margin: 0;
+      padding: 20px;
+      color: #1e293b;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+    }
+    h1 {
+      grid-column: 1 / -1;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #0f172a;
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.2rem;
+    }
+    .product-card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    .product-name { font-weight: 600; margin: 0 0 0.6rem; font-size: 1.1rem; }
+    .product-price { color: #059669; font-weight: 700; font-size: 1.25rem; margin: 0.3rem 0 0.8rem; }
+    .product-category { font-size: 0.85rem; color: #64748b; margin-bottom: 0.8rem; }
+    .add-btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    .add-btn:hover { background: #2563eb; }
+
+    .cart {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 20px;
+      height: fit-content;
+    }
+    .cart h2 { margin-top: 0; color: #1e293b; }
+
+    .cart-item {
+      display: flex;
+      flex-direction: column;
+      padding: 1rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .cart-item:last-child { border-bottom: none; }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+    .item-name { font-weight: 500; }
+    .item-price-line {
+      font-size: 0.95rem;
+      color: #475569;
+      margin-bottom: 0.4rem;
+    }
+    .discount-per-item {
+      font-size: 0.9rem;
+      color: #059669;
+      font-weight: 500;
+    }
+    .item-qty-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+    }
+    .qty-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid #cbd5e1;
+      background: #f1f5f9;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .qty-display {
+      width: 36px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .remove-btn {
+      color: #ef4444;
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      align-self: flex-start;
+      margin-top: 0.4rem;
+    }
+
+    .discount-section {
+      margin: 1.5rem 0;
+      text-align: center;
+    }
+    #applyDiscountBtn {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 0.8rem 1.8rem;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #applyDiscountBtn:hover:not(:disabled) {
+      background: #059669;
+    }
+    #applyDiscountBtn:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    #discountStatus {
+      margin-top: 0.8rem;
+      font-size: 0.95rem;
+      color: #475569;
+    }
+    .applied { color: #059669; font-weight: 500; }
+
+    .totals {
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .total-line {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.5rem 0;
+    }
+    .grand-total {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 0.8rem;
+    }
+    .discount-line { color: #059669; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<h1>Shopping Cart</h1>
+
+<div class="container">
+  <div class="products" id="productsContainer"></div>
+
+  <div class="cart">
+    <h2>Your Cart</h2>
+    
+    <div id="cartItems"></div>
+
+    <div class="discount-section">
+      <button id="applyDiscountBtn" disabled>Apply Quantity Discount</button>
+      <div id="discountStatus">No items qualify for discount yet (need 3+ of same product)</div>
+    </div>
+
+    <div class="totals">
+      <div class="total-line">
+        <span>Subtotal:</span>
+        <span id="subtotal">₹0.00</span>
+      </div>
+      <div class="total-line discount-line" id="discountRow" style="display:none;">
+        <span>Discount Applied:</span>
+        <span id="discountAmount">-₹0.00</span>
+      </div>
+      <div class="total-line grand-total">
+        <span>Final Total:</span>
+        <span id="grandTotal">₹0.00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const products = [
+  { id:1, name:"Wireless Mouse",      price:849,  category:"Electronics", stock:12 },
+  { id:2, name:"Mechanical Keyboard", price:2499, category:"Electronics", stock:8  },
+  { id:3, name:"USB-C Hub",           price:1299, category:"Electronics", stock:15 },
+  { id:4, name:"Coffee Mug",          price:299,  category:"Home",        stock:30 },
+  { id:5, name:"Notebook Set (5)",    price:449,  category:"Stationery",  stock:25 },
+  { id:6, name:"Desk Lamp",           price:1799, category:"Home",        stock:10 },
+  { id:7, name:"Portable Charger",    price:1599, category:"Electronics", stock:18 },
+];
+
+let cart = [];
+let discountApplied = false;
+
+const productsContainer = document.getElementById("productsContainer");
+const cartItemsEl       = document.getElementById("cartItems");
+const subtotalEl        = document.getElementById("subtotal");
+const discountRow       = document.getElementById("discountRow");
+const discountAmountEl  = document.getElementById("discountAmount");
+const grandTotalEl      = document.getElementById("grandTotal");
+const applyBtn          = document.getElementById("applyDiscountBtn");
+const statusEl          = document.getElementById("discountStatus");
+
+function getDiscountRate(qty) {
+  if (qty >= 5) return 0.15;
+  if (qty >= 3) return 0.08;
+  return 0;
+}
+
+function canApplyDiscount() {
+  return cart.some(item => getDiscountRate(item.quantity) > 0);
+}
+
+function renderProducts() {
+  productsContainer.innerHTML = "";
+  products.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "product-card";
+    card.innerHTML = `
+      <div class="product-name">${p.name}</div>
+      <div class="product-category">${p.category}</div>
+      <div class="product-price">₹${p.price.toLocaleString()}</div>
+      <button class="add-btn" data-id="${p.id}">Add to Cart</button>
+    `;
+    card.querySelector(".add-btn").addEventListener("click", () => addToCart(p.id));
+    productsContainer.appendChild(card);
+  });
+}
+
+function addToCart(productId) {
+  const item = cart.find(i => i.productId === productId);
+  const product = products.find(p => p.id === productId);
+  if (item) {
+    if (item.quantity < product.stock) item.quantity++;
+  } else {
+    cart.push({ productId, quantity: 1 });
+  }
+  renderCart();
+}
+
+function changeQuantity(productId, delta) {
+  const item = cart.find(i => i.productId === productId);
+  if (!item) return;
+  const newQty = item.quantity + delta;
+  const product = products.find(p => p.id === productId);
+  if (newQty >= 1 && newQty <= product.stock) {
+    item.quantity = newQty;
+  } else if (newQty < 1) {
+    cart = cart.filter(i => i.productId !== productId);
+  }
+  renderCart();
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(i => i.productId !== productId);
+  renderCart();
+}
+
+function calculateTotals(useDiscount = discountApplied) {
+  let subtotal = 0;
+  let discount = 0;
+
+  cart.forEach(item => {
+    const prod = products.find(p => p.id === item.productId);
+    const itemSubtotal = prod.price * item.quantity;
+    subtotal += itemSubtotal;
+
+    if (useDiscount) {
+      const rate = getDiscountRate(item.quantity);
+      discount += Math.round(itemSubtotal * rate);
+    }
+  });
+
+  return {
+    subtotal: Math.round(subtotal),
+    discount: Math.round(discount),
+    total: Math.round(subtotal - discount)
+  };
+}
+
+function renderCart() {
+  cartItemsEl.innerHTML = "";
+
+  if (cart.length === 0) {
+    cartItemsEl.innerHTML = "<p style='text-align:center;color:#64748b;'>Your cart is empty</p>";
+    discountApplied = false;
+  } else {
+    cart.forEach(item => {
+      const prod = products.find(p => p.id === item.productId);
+      const itemSubtotal = prod.price * item.quantity;
+      const rate = getDiscountRate(item.quantity);
+      const itemDiscount = discountApplied ? Math.round(itemSubtotal * rate) : 0;
+
+      const div = document.createElement("div");
+      div.className = "cart-item";
+      div.innerHTML = `
+        <div class="item-header">
+          <div class="item-name">${prod.name}</div>
+          <button class="remove-btn" onclick="removeFromCart(${item.productId})">×</button>
+        </div>
+        <div class="item-price-line">₹${prod.price.toLocaleString()} × ${item.quantity} = ₹${itemSubtotal.toLocaleString()}</div>
+        ${itemDiscount > 0 ? `<div class="discount-per-item">−${Math.round(rate*100)}% discount = −₹${itemDiscount.toLocaleString()}</div>` : ''}
+        <div class="item-qty-controls">
+          <button class="qty-btn" onclick="changeQuantity(${item.productId}, -1)">−</button>
+          <span class="qty-display">${item.quantity}</span>
+          <button class="qty-btn" onclick="changeQuantity(${item.productId}, 1)">+</button>
+        </div>
+      `;
+      cartItemsEl.appendChild(div);
+    });
+  }
+
+  const totals = calculateTotals(discountApplied);
+
+  subtotalEl.textContent    = `₹${totals.subtotal.toLocaleString()}`;
+  grandTotalEl.textContent  = `₹${totals.total.toLocaleString()}`;
+
+  if (totals.discount > 0) {
+    discountRow.style.display = "flex";
+    discountAmountEl.textContent = `-₹${totals.discount.toLocaleString()}`;
+  } else {
+    discountRow.style.display = "none";
+  }
+
+  // Update Apply Discount button & status
+  const eligible = canApplyDiscount();
+  applyBtn.disabled = !eligible || discountApplied;
+
+  if (!eligible) {
+    statusEl.textContent = "No items qualify for discount (need 3+ of same product)";
+    statusEl.className = "";
+  } else if (discountApplied) {
+    statusEl.textContent = "Quantity discount applied ✓";
+    statusEl.className = "applied";
+  } else {
+    statusEl.textContent = "Click to apply quantity-based discount";
+    statusEl.className = "";
+  }
+}
+
+applyBtn.addEventListener("click", () => {
+  if (canApplyDiscount() && !discountApplied) {
+    discountApplied = true;
+    renderCart();
+  }
+});
+
+renderProducts();
+renderCart();
+</script>
+
+</body>
+</html>
