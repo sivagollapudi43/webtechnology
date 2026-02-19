@@ -1,0 +1,25 @@
+{
+  "products": [
+    {
+      "id": "P001",
+      "name": "Laptop",
+      "category": "Electronics",
+      "price": 60000,
+      "stock": 5
+    },
+    {
+      "id": "P002",
+      "name": "Office Chair",
+      "category": "Furniture",
+      "price": 4500,
+      "stock": 12
+    },
+    {
+      "id": "P003",
+      "name": "Notebook",
+      "category": "Stationery",
+      "price": 60,
+      "stock": 3
+    }
+  ]
+}

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Product Inventory System</title>
+
+<style>
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f2f4f7;
+    padding:20px;
+}
+.container{
+    max-width:1100px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+h2{
+    text-align:center;
+    color:#2c3e50;
+    margin-bottom:20px;
+}
+.form{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:15px;
+}
+label{
+    font-weight:bold;
+}
+input{
+    padding:8px;
+    border:1px solid #ccc;
+    border-radius:4px;
+}
+button{
+    padding:9px 16px;
+    border:none;
+    border-radius:4px;
+    cursor:pointer;
+    color:white;
+}
+.add{background:#2ecc71}
+.update{background:#3498db;display:none}
+.delete{background:#e74c3c}
+.clear{background:#7f8c8d}
+.search{background:#9b59b6}
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+th{
+    background:#34495e;
+    color:white;
+    padding:10px;
+}
+td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+}
+.low-stock{
+    background:#f8d7da;
+    color:#721c24;
+    font-weight:bold;
+}
+#msg{
+    margin:10px 0;
+    font-weight:bold;
+}
+.success{color:green}
+.error{color:red}
+.info{color:#2980b9}
+.total{
+    margin-top:15px;
+    font-weight:bold;
+    font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>Product Inventory System</h2>
+
+<div id="msg"></div>
+
+<div class="form">
+<input id="pid" placeholder="Product ID">
+<input id="pname" placeholder="Product Name">
+<input id="pcat" placeholder="Category">
+<input id="price" type="number" placeholder="Price">
+<input id="stock" type="number" placeholder="Stock Quantity">
+<input id="searchCat" placeholder="Search Category">
+</div>
+
+<br>
+
+<button class="add" id="addBtn" onclick="addProduct()">Add Product</button>
+<button class="update" id="updateBtn" onclick="updateProduct()">Update Product</button>
+<button class="search" onclick="searchCategory()">Search</button>
+<button class="clear" onclick="resetForm()">Clear</button>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Category</th>
+<th>Price</th>
+<th>Stock</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<div class="total" id="totalValue"></div>
+
+</div>
+
+<script>
+let products=[]
+let editIndex=null
+
+window.onload=loadData
+
+function loadData(){
+fetch("inventory.json")
+.then(res=>{
+if(!res.ok) throw new Error("JSON not loaded")
+return res.json()
+})
+.then(data=>{
+products=data.products
+renderTable(products)
+})
+.catch(()=>{
+showMsg("Run using Live Server / XAMPP","error")
+})
+}
+
+function renderTable(list){
+let tbody=document.getElementById("tableBody")
+tbody.innerHTML=""
+let total=0
+
+if(list.length===0){
+tbody.innerHTML='<tr><td colspan="6">No products found</td></tr>'
+document.getElementById("totalValue").innerText=""
+return
+}
+
+list.forEach((p,i)=>{
+let row=document.createElement("tr")
+if(p.stock<5) row.className="low-stock"
+row.innerHTML=`
+<td>${p.id}</td>
+<td>${p.name}</td>
+<td>${p.category}</td>
+<td>${p.price}</td>
+<td>${p.stock}</td>
+<td>
+<button class="update" onclick="editProduct(${i})" style="display:inline-block">Edit</button>
+<button class="delete" onclick="deleteProduct(${i})">Delete</button>
+</td>`
+tbody.appendChild(row)
+total+=p.price*p.stock
+})
+
+document.getElementById("totalValue").innerText=
+"Total Inventory Value: ₹"+total
+}
+
+function addProduct(){
+let id=pid.value.trim()
+let n=pname.value.trim()
+let c=pcat.value.trim()
+let pr=Number(price.value)
+let st=Number(stock.value)
+
+if(!id||!n||!c||pr<=0||st<0){
+showMsg("Invalid product data","error")
+return
+}
+
+if(products.some(p=>p.id===id)){
+showMsg("Product ID already exists","error")
+return
+}
+
+products.push({id,name:n,category:c,price:pr,stock:st})
+renderTable(products)
+resetForm()
+showMsg("Product added","success")
+}
+
+function editProduct(i){
+let p=products[i]
+pid.value=p.id
+pname.value=p.name
+pcat.value=p.category
+price.value=p.price
+stock.value=p.stock
+pid.disabled=true
+editIndex=i
+addBtn.style.display="none"
+updateBtn.style.display="inline-block"
+showMsg("Edit mode enabled","info")
+}
+
+function updateProduct(){
+let pr=Number(price.value)
+let st=Number(stock.value)
+
+if(pr<=0||st<0){
+showMsg("Invalid price or stock","error")
+return
+}
+
+products[editIndex].price=pr
+products[editIndex].stock=st
+renderTable(products)
+resetForm()
+showMsg("Product updated","success")
+}
+
+function deleteProduct(i){
+products.splice(i,1)
+renderTable(products)
+showMsg("Product deleted","success")
+}
+
+function searchCategory(){
+let cat=searchCat.value.trim()
+if(!cat){
+renderTable(products)
+return
+}
+let filtered=products.filter(p=>p.category.toLowerCase()===cat.toLowerCase())
+renderTable(filtered)
+}
+
+function resetForm(){
+pid.value=""
+pname.value=""
+pcat.value=""
+price.value=""
+stock.value=""
+searchCat.value=""
+pid.disabled=false
+editIndex=null
+addBtn.style.display="inline-block"
+updateBtn.style.display="none"
+}
+
+function showMsg(msg,type){
+let m=document.getElementById("msg")
+m.textContent=msg
+m.className=type
+}
+</script>
+
+</body>
+</html>

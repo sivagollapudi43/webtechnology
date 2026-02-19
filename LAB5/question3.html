@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Records - JSON</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f2f4f7;
+    padding:20px;
+}
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    background:#ffffff;
+    padding:25px;
+    border-radius:8px;
+    box-shadow:0 3px 12px rgba(0,0,0,0.1);
+}
+
+h1{
+    text-align:center;
+    color:#2c3e50;
+    margin-bottom:10px;
+}
+
+header p{
+    text-align:center;
+    color:#6b7280;
+    margin-bottom:20px;
+}
+
+.form-section h2,
+.table-section h2{
+    color:#34495e;
+    margin-bottom:15px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:16px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:5px;
+    font-weight:600;
+    color:#34495e;
+}
+
+input{
+    width:100%;
+    padding:8px;
+    border:1px solid #ccc;
+    border-radius:4px;
+    font-size:14px;
+}
+
+input:focus{
+    outline:none;
+    border-color:#3498db;
+}
+
+.form-buttons{
+    grid-column:1 / -1;
+    text-align:center;
+    margin-top:15px;
+}
+
+button{
+    padding:9px 18px;
+    margin:6px;
+    border:none;
+    border-radius:4px;
+    font-size:14px;
+    cursor:pointer;
+    color:white;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+.btn-save{
+    background:#2ecc71;
+}
+
+.btn-clear{
+    background:#7f8c8d;
+}
+
+.action-btn{
+    padding:6px 12px;
+    font-size:13px;
+    border-radius:4px;
+    margin-right:5px;
+}
+
+.btn-edit{
+    background:#3498db;
+}
+
+.btn-delete{
+    background:#e74c3c;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+th{
+    background:#34495e;
+    color:white;
+    padding:10px;
+    text-align:left;
+}
+
+td{
+    padding:10px;
+    border-bottom:1px solid #ddd;
+}
+
+tr:hover{
+    background:#f5f6f8;
+}
+
+.message{
+    padding:10px;
+    margin-bottom:15px;
+    border-radius:4px;
+    font-weight:600;
+    min-height:18px;
+}
+
+.message.success{
+    background:#d4edda;
+    color:#155724;
+}
+
+.message.error{
+    background:#f8d7da;
+    color:#721c24;
+}
+
+.message.info{
+    background:#d1ecf1;
+    color:#0c5460;
+}
+
+.message.warning{
+    background:#fff3cd;
+    color:#856404;
+}
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1><i class="fas fa-user-graduate"></i> Student Record System</h1>
+    <p>Local JSON CRUD Application</p>
+  </header>
+
+  <div id="message" class="message"></div>
+
+  <section class="form-section">
+    <h2><i class="fas fa-user-plus"></i> Add / Edit Student</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="studId">Student ID <span class="required">*</span></label>
+        <input type="text" id="studId" placeholder="S001" required>
+      </div>
+      <div class="form-group">
+        <label for="name">Full Name <span class="required">*</span></label>
+        <input type="text" id="name" placeholder="Aarav Sharma" required>
+      </div>
+      <div class="form-group">
+        <label for="course">Course <span class="required">*</span></label>
+        <input type="text" id="course" placeholder="B.Tech Computer Science" required>
+      </div>
+      <div class="form-group">
+        <label for="marks">Total Marks <span class="required">*</span></label>
+        <input type="number" id="marks" min="0" max="1000" placeholder="850" required>
+      </div>
+
+      <input type="hidden" id="editIndex" value="">
+
+      <div class="form-buttons">
+        <button class="btn-save" onclick="saveStudent()">
+          <i class="fas fa-save"></i> Save Student
+        </button>
+        <button class="btn-clear" onclick="resetForm()">
+          <i class="fas fa-eraser"></i> Clear
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="table-section">
+    <h2><i class="fas fa-users"></i> Student Records</h2>
+    <table id="studentTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Course</th>
+          <th>Marks</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="studentBody"></tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+const JSON_FILE = "students.json";
+let students = [];
+
+async function loadStudents() {
+  try {
+    const response = await fetch(JSON_FILE + '?t=' + Date.now());
+    if (!response.ok) {
+      if (response.status === 404) {
+        await createEmptyJson();
+        return;
+      }
+      throw new Error(`HTTP ${response.status}`);
+    }
+    students = await response.json();
+    renderTable();
+  } catch (err) {
+    showMessage("Error loading students: " + err.message, "error");
+  }
+}
+
+async function createEmptyJson() {
+  const empty = [];
+  await saveJson(empty);
+  showMessage("students.json not found → template created.<br>Please place it next to this file and refresh.", "info");
+}
+
+async function saveJson(data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: "application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "students.json";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function renderTable() {
+  const tbody = document.getElementById("studentBody");
+  tbody.innerHTML = "";
+
+  if (students.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:#6b7280;">No students recorded yet</td></tr>';
+    return;
+  }
+
+  students.forEach((student, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><strong>${student.id}</strong></td>
+      <td>${student.name}</td>
+      <td>${student.course}</td>
+      <td>${student.marks}</td>
+      <td>
+        <button class="action-btn btn-edit" onclick="editStudent(${index})">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="action-btn btn-delete" onclick="deleteStudent(${index})">
+          <i class="fas fa-trash-alt"></i> Delete
+        </button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function saveStudent() {
+  const id     = document.getElementById("studId").value.trim();
+  const name   = document.getElementById("name").value.trim();
+  const course = document.getElementById("course").value.trim();
+  const marks  = document.getElementById("marks").value.trim();
+  const editIndex = document.getElementById("editIndex").value;
+
+  if (!id || !name || !course || !marks) {
+    showMessage("All fields are required", "error");
+    return;
+  }
+
+  if (isNaN(marks) || marks < 0 || marks > 1000) {
+    showMessage("Marks must be between 0 and 1000", "error");
+    return;
+  }
+
+  const studentData = { id, name, course, marks: Number(marks) };
+
+  if (editIndex !== "") {
+    const idx = Number(editIndex);
+    students[idx] = studentData;
+    showMessage(`Student ${id} updated`, "success");
+  } else {
+    if (students.some(s => s.id === id)) {
+      showMessage(`Student ID ${id} already exists`, "error");
+      return;
+    }
+    students.push(studentData);
+    showMessage(`Student ${id} added`, "success");
+  }
+
+  saveJson(students);
+  renderTable();
+  resetForm();
+}
+
+function editStudent(index) {
+  const s = students[index];
+  document.getElementById("studId").value = s.id;
+  document.getElementById("studId").disabled = true;
+  document.getElementById("name").value = s.name;
+  document.getElementById("course").value = s.course;
+  document.getElementById("marks").value = s.marks;
+  document.getElementById("editIndex").value = index;
+
+  showMessage(`Editing ${s.name} (${s.id})`, "info");
+}
+
+function deleteStudent(index) {
+  if (!confirm("Delete this student record?")) return;
+
+  const id = students[index].id;
+  students.splice(index, 1);
+  saveJson(students);
+  renderTable();
+  showMessage(`Student ${id} deleted`, "success");
+}
+
+function resetForm() {
+  document.getElementById("studId").disabled = false;
+  document.querySelector("form")?.reset?.() || document.getElementById("studId").value == "";
+  document.getElementById("name").value = "";
+  document.getElementById("course").value = "";
+  document.getElementById("marks").value = "";
+  document.getElementById("editIndex").value = "";
+}
+
+function showMessage(text, type = "info") {
+  const el = document.getElementById("message");
+  el.textContent = text;
+  el.className = "message " + type;
+  setTimeout(() => el.textContent = "", 5000);
+}
+
+window.onload = loadStudents;
+</script>
+</body>
+</html>

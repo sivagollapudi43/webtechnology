@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<students>
+    <student>
+        <id>S001</id>
+        <name>Aarav Sharma</name>
+        <course>B.Tech Computer Science</course>
+        <marks>850</marks>
+    </student>
+
+    <student>
+        <id>S002</id>
+        <name>Ananya Verma</name>
+        <course>B.Sc Mathematics</course>
+        <marks>780</marks>
+    </student>
+
+    <student>
+        <id>S003</id>
+        <name>Rohan Patel</name>
+        <course>B.Com Finance</course>
+        <marks>820</marks>
+    </student>
+</students>

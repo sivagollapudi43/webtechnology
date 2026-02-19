@@ -1,0 +1,177 @@
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Library Book Tracker</title>
+
+<style>
+body{font-family:Arial;background:#f2f4f7;padding:20px}
+.container{max-width:900px;margin:auto;background:#fff;padding:25px;border-radius:8px}
+input,select{padding:8px;margin:5px}
+button{padding:8px 16px;margin:5px;border:none;color:white;cursor:pointer}
+.add{background:#2ecc71}
+.update-form{background:#3498db;display:none}
+.edit-row{background:#3498db}
+.delete{background:#e74c3c}
+.clear{background:#7f8c8d}
+table{width:100%;border-collapse:collapse;margin-top:20px}
+th,td{border:1px solid #ccc;padding:10px;text-align:center}
+th{background:#34495e;color:white}
+#msg{font-weight:bold;margin-bottom:10px}
+.success{color:green}
+.error{color:red}
+.info{color:blue}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>Library Book Tracker (XML)</h2>
+
+<div id="msg"></div>
+
+<input id="bid" placeholder="Book ID">
+<input id="title" placeholder="Title">
+<input id="author" placeholder="Author">
+<select id="status">
+<option value="">Status</option>
+<option>Available</option>
+<option>Issued</option>
+</select>
+
+<br>
+<button class="add" id="addBtn" onclick="addBook()">Add Book</button>
+<button class="update-form" id="updateBtn" onclick="updateBook()">Update Book</button>
+<button class="clear" onclick="clearForm()">Clear</button>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Author</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody id="bookTable"></tbody>
+</table>
+</div>
+
+<script>
+let xmlDoc=null
+let editIndex=null
+
+window.onload=loadBooks
+
+function loadBooks(){
+let xhr=new XMLHttpRequest()
+xhr.open("GET","books.xml",true)
+xhr.onreadystatechange=function(){
+if(xhr.readyState===4 && xhr.status===200){
+xmlDoc=xhr.responseXML
+displayBooks()
+}
+}
+xhr.send()
+}
+
+function displayBooks(){
+let table=document.getElementById("bookTable")
+table.innerHTML=""
+let books=xmlDoc.getElementsByTagName("book")
+
+for(let i=0;i<books.length;i++){
+let b=books[i]
+let row=document.createElement("tr")
+row.innerHTML=`
+<td>${b.getElementsByTagName("id")[0].textContent}</td>
+<td>${b.getElementsByTagName("title")[0].textContent}</td>
+<td>${b.getElementsByTagName("author")[0].textContent}</td>
+<td>${b.getElementsByTagName("status")[0].textContent}</td>
+<td>
+<button class="edit-row" onclick="editBook(${i})">Edit</button>
+<button class="delete" onclick="deleteBook(${i})">Delete</button>
+</td>`
+table.appendChild(row)
+}
+}
+
+function addBook(){
+let id=bid.value.trim()
+let t=title.value.trim()
+let a=author.value.trim()
+let s=status.value
+if(!id||!t||!a||!s){show("All fields required","error");return}
+
+let book=xmlDoc.createElement("book")
+book.appendChild(node("id",id))
+book.appendChild(node("title",t))
+book.appendChild(node("author",a))
+book.appendChild(node("status",s))
+xmlDoc.documentElement.appendChild(book)
+
+displayBooks()
+clearForm()
+show("Book added","success")
+}
+
+function editBook(i){
+let book=xmlDoc.getElementsByTagName("book")[i]
+bid.value=book.getElementsByTagName("id")[0].textContent
+title.value=book.getElementsByTagName("title")[0].textContent
+author.value=book.getElementsByTagName("author")[0].textContent
+status.value=book.getElementsByTagName("status")[0].textContent
+
+bid.disabled=true
+editIndex=i
+addBtn.style.display="none"
+updateBtn.style.display="inline-block"
+show("Edit mode enabled","info")
+}
+
+function updateBook(){
+let book=xmlDoc.getElementsByTagName("book")[editIndex]
+book.getElementsByTagName("title")[0].textContent=title.value
+book.getElementsByTagName("author")[0].textContent=author.value
+book.getElementsByTagName("status")[0].textContent=status.value
+
+displayBooks()
+clearForm()
+show("Book updated","success")
+}
+
+function deleteBook(i){
+xmlDoc.documentElement.removeChild(xmlDoc.getElementsByTagName("book")[i])
+displayBooks()
+show("Book deleted","success")
+}
+
+function clearForm(){
+bid.value=""
+title.value=""
+author.value=""
+status.value=""
+bid.disabled=false
+editIndex=null
+addBtn.style.display="inline-block"
+updateBtn.style.display="none"
+}
+
+function node(t,v){
+let n=xmlDoc.createElement(t)
+n.textContent=v
+return n
+}
+
+function show(m,c){
+msg.textContent=m
+msg.className=c
+}
+</script>
+
+</body>
+</html>
