@@ -1,0 +1,14 @@
+[
+    {"id":1,"name":"Wireless Bluetooth Headphones","price":2999,"originalPrice":3999,"category":"Electronics"},
+    {"id":2,"name":"Premium Laptop Stand","price":1499,"originalPrice":1999,"category":"Accessories"},
+    {"id":3,"name":"Mechanical Gaming Keyboard","price":4999,"originalPrice":5999,"category":"Electronics"},
+    {"id":4,"name":"Cotton T-Shirt Pack","price":999,"originalPrice":1499,"category":"Apparel"},
+    {"id":5,"name":"Smart Fitness Tracker","price":2499,"originalPrice":2999,"category":"Wearables"},
+    {"id":6,"name":"Wireless Mouse Pro","price":899,"originalPrice":1299,"category":"Accessories"},
+    {"id":7,"name":"4K Action Camera","price":12999,"originalPrice":15999,"category":"Electronics"},
+    {"id":8,"name":"Leather Office Chair","price":8999,"originalPrice":11999,"category":"Furniture"},
+    {"id":9,"name":"Coffee Maker Deluxe","price":3499,"originalPrice":4499,"category":"Home Appliances"},
+    {"id":10,"name":"Running Shoes Pro","price":2999,"originalPrice":3999,"category":"Footwear"},
+    {"id":11,"name":"SSD 1TB NVMe","price":5999,"originalPrice":6999,"category":"Storage"},
+    {"id":12,"name":"Smart Watch Ultra","price":7999,"originalPrice":9999,"category":"Wearables"}
+]

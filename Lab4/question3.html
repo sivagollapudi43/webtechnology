@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System - AJAX CRUD</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; padding: 20px;
+        }
+        .container {
+            max-width: 1400px; margin: 0 auto;
+            background: rgba(255,255,255,0.95); border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white; padding: 40px; text-align: center;
+        }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; font-weight: 300; }
+        .content {
+            display: grid; grid-template-columns: 1fr 2fr; gap: 30px; padding: 40px;
+        }
+        .form-section, .table-section {
+            background: #f8fafc; padding: 30px; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .form-section h2, .table-section h2 { color: #1e293b; margin-bottom: 20px; font-size: 1.5rem; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #374151; font-weight: 500; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0;
+            border-radius: 10px; font-size: 1rem; transition: all 0.3s ease; background: white;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #4facfe; box-shadow: 0 0 0 3px rgba(79,172,254,0.1);
+        }
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        .btn-primary { background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; }
+        .btn-success { background: linear-gradient(135deg, #10b981, #34d399); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #f87171); color: white; }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .btn-small {
+            padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;
+            border: none; cursor: pointer; transition: all 0.2s ease; margin: 0 2px;
+        }
+        .btn-edit { background: #3b82f6; color: white; }
+        .btn-delete { background: #ef4444; color: white; }
+        .btn-small:hover { transform: scale(1.05); }
+        .message {
+            padding: 15px 20px; border-radius: 10px; margin-bottom: 20px;
+            font-weight: 500; display: none; text-align: center;
+        }
+        .message.success { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+        .message.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .table-container { overflow-x: auto; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; font-weight: 600; color: #374151; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        tr:hover { background: #f8fafc; }
+        .marks { font-weight: 600; color: #059669; }
+        @media (max-width: 768px) {
+            .content { grid-template-columns: 1fr; gap: 20px; padding: 20px; }
+            .header h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Student Management System</h1>
+            <p>Complete AJAX CRUD - All Operations Work!</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <h2>Add/Edit Student</h2>
+                <div id="message"></div>
+                <form id="studentForm">
+                    <div class="form-group">
+                        <label for="studentId">Student ID *</label>
+                        <input type="number" id="studentId" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="studentName">Name *</label>
+                        <input type="text" id="studentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="department">Department *</label>
+                        <select id="department" required>
+                            <option value="">Select Department</option>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="Physics">Physics</option>
+                            <option value="Chemistry">Chemistry</option>
+                            <option value="Biology">Biology</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="marks">Marks (0-100) *</label>
+                        <input type="number" id="marks" required min="0" max="100">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">Add Student</button>
+                    <button type="button" class="btn btn-warning" id="clearBtn">Clear Form</button>
+                </form>
+            </div>
+
+            <div class="table-section">
+                <h2>Students <span id="studentsCount">(0)</span></h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Name</th><th>Department</th><th>Marks</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allStudents = [];
+        let editingId = null;
+
+        // Show messages
+        function showMessage(message, type = 'success') {
+            const msg = document.getElementById('message');
+            msg.textContent = message;
+            msg.className = `message ${type}`;
+            msg.style.display = 'block';
+            setTimeout(() => msg.style.display = 'none', 3000);
+        }
+
+        // Load students from JSON
+        async function loadStudents() {
+            try {
+                const response = await fetch('question3.json');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                allStudents = await response.json();
+                updateDisplay();
+            } catch (error) {
+                showMessage('Failed to load: ' + error.message, 'error');
+            }
+        }
+
+        // Update table & count
+        function updateDisplay() {
+            const tbody = document.getElementById('tableBody');
+            const count = document.getElementById('studentsCount');
+            
+            tbody.innerHTML = '';
+            allStudents.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.department}</td>
+                    <td class="marks">${student.marks}</td>
+                    <td>
+                        <button class="btn-small btn-edit" onclick="editStudent(${student.id})">Edit</button>
+                        <button class="btn-small btn-delete" onclick="deleteStudent(${student.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            count.textContent = `(${allStudents.length})`;
+        }
+
+        // EDIT - Populate form
+        function editStudent(id) {
+            const student = allStudents.find(s => s.id === id);
+            if (student) {
+                editingId = id;
+                document.getElementById('studentId').value = student.id;
+                document.getElementById('studentName').value = student.name;
+                document.getElementById('department').value = student.department;
+                document.getElementById('marks').value = student.marks;
+                document.getElementById('submitBtn').textContent = 'Update Student';
+                document.getElementById('studentId').disabled = true;
+                showMessage('Edit details and click Update');
+                document.getElementById('studentId').scrollIntoView();
+            }
+        }
+
+        // ✅ FIXED DELETE - Works with local array
+        function deleteStudent(id) {
+            if (confirm(`Delete student ID ${id}?`)) {
+                allStudents = allStudents.filter(student => student.id !== id);
+                updateDisplay();
+                showMessage('✅ Student deleted successfully!');
+            }
+        }
+
+        // Clear form
+        function clearForm() {
+            document.getElementById('studentForm').reset();
+            editingId = null;
+            document.getElementById('submitBtn').textContent = 'Add Student';
+            document.getElementById('studentId').disabled = false;
+        }
+
+        // Form submit - CREATE/UPDATE
+        document.getElementById('studentForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('studentId').value);
+            const student = {
+                id: id,
+                name: document.getElementById('studentName').value,
+                department: document.getElementById('department').value,
+                marks: parseInt(document.getElementById('marks').value)
+            };
+
+            if (editingId) {
+                // UPDATE
+                const index = allStudents.findIndex(s => s.id === id);
+                if (index !== -1) {
+                    allStudents[index] = student;
+                    showMessage('✅ Student updated successfully!');
+                }
+            } else {
+                // CREATE - Check duplicate ID
+                if (allStudents.some(s => s.id === id)) {
+                    showMessage('❌ Student ID already exists!', 'error');
+                    return;
+                }
+                allStudents.push(student);
+                showMessage('✅ Student added successfully!');
+            }
+
+            updateDisplay();
+            clearForm();
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', clearForm);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadStudents);
+    </script>
+</body>
+</html>

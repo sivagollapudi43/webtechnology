@@ -1,0 +1,38 @@
+{
+  "Amaravati": {
+    "temperature": 32,
+    "humidity": 65,
+    "condition": "Sunny",
+    "description": "Clear sky with high visibility"
+  },
+  "Hyderabad": {
+    "temperature": 29,
+    "humidity": 72,
+    "condition": "Partly Cloudy",
+    "description": "Scattered clouds throughout the day"
+  },
+  "Visakhapatnam": {
+    "temperature": 28,
+    "humidity": 78,
+    "condition": "Rainy",
+    "description": "Light rain showers expected"
+  },
+  "Delhi": {
+    "temperature": 22,
+    "humidity": 55,
+    "condition": "Foggy",
+    "description": "Dense fog reducing visibility"
+  },
+  "Mumbai": {
+    "temperature": 31,
+    "humidity": 68,
+    "condition": "Humid",
+    "description": "Hot and humid conditions"
+  },
+  "Bangalore": {
+    "temperature": 26,
+    "humidity": 60,
+    "condition": "Clear",
+    "description": "Pleasant weather with clear skies"
+  }
+}
