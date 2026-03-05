@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Online Book Finder</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>Online Book Finder</h1>
+
+  <!-- Search by title -->
+  <section>
+    <h2>Search by Title</h2>
+    <input type="text" id="searchTitle" placeholder="e.g. javascript">
+    <button onclick="searchByTitle()">Search</button>
+  </section>
+
+  <!-- Filter by category -->
+  <section>
+    <h2>Filter by Category</h2>
+    <select id="category">
+      <option value="">All Categories</option>
+      <option value="Programming">Programming</option>
+      <option value="Fiction">Fiction</option>
+      <option value="Science">Science</option>
+      <option value="Self-Help">Self-Help</option>
+    </select>
+    <button onclick="filterByCategory()">Filter</button>
+  </section>
+
+  <!-- Sort -->
+  <section>
+    <h2>Sort Books</h2>
+    <select id="sortBy">
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="rating-desc">Rating: High to Low</option>
+    </select>
+    <button onclick="sortBooks()">Sort</button>
+  </section>
+
+  <!-- Top rated -->
+  <section>
+    <h2>Top Rated Books</h2>
+    <button onclick="showTopRated()">Show Top 5</button>
+  </section>
+
+  <!-- Results -->
+  <div id="results"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
