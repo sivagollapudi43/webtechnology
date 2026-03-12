@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Marks Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .marks-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎓 Student Marks Calculator</h1>
+    
+    <label for="studentName">Student Name:</label>
+    <input type="text" id="studentName" value="Arun" required>
+    
+    <div class="marks-display">
+        <label for="mark1">Mark 1:</label>
+        <input type="number" id="mark1" value="85" min="0" max="100">
+        
+        <label for="mark2">Mark 2:</label>
+        <input type="number" id="mark2" value="90" min="0" max="100">
+        
+        <label for="mark3">Mark 3:</label>
+        <input type="number" id="mark3" value="88" min="0" max="100">
+    </div>
+    
+    <button onclick="calculateMarks()">Calculate Marks</button>
+    
+    <div id="result"></div>
+
+    <script>
+        // ES6 features: let, const, arrow functions, template literals
+        const calculateAverage = (m1, m2, m3) => (m1 + m2 + m3) / 3;
+
+        function calculateMarks() {
+            // Get values from inputs
+            let studentName = document.getElementById('studentName').value;
+            let mark1 = parseFloat(document.getElementById('mark1').value);
+            let mark2 = parseFloat(document.getElementById('mark2').value);
+            let mark3 = parseFloat(document.getElementById('mark3').value);
+
+            // Calculate total and average
+            let totalMarks = mark1 + mark2 + mark3;
+            let average = calculateAverage(mark1, mark2, mark3);
+
+            // Display formatted result using template literals
+            let result = document.getElementById('result');
+            result.innerHTML = `
+                <div>Student Name: ${studentName}</div>
+                <div>Total Marks: ${totalMarks}</div>
+                <div>Average Marks: ${average.toFixed(2)}</div>
+            `;
+        }
+
+        // Calculate on page load
+        window.onload = calculateMarks;
+    </script>
+</body>
+</html>

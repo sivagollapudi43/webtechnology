@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIT-AP ES6 Student Grade Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4f8;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .output-section {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .grade {
+            font-size: 1.5em;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .A { background: #d4edda; color: #155724; }
+        .B { background: #fff3cd; color: #856404; }
+        .C { background: #f8d7da; color: #721c24; }
+        .D { background: #e2e3e5; color: #383d41; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VIT-AP ES6 Student Grade System</h1>
+        
+        
+        <div>
+            <label>Student ID:</label>
+            <input type="number" id="id" value="101">
+            
+            <label>Name:</label>
+            <input type="text" id="name" value="Priya">
+            
+            <label>Department:</label>
+            <input type="text" id="department" value="CSE">
+            
+            <label>Marks (0-100):</label>
+            <input type="number" id="marks" value="92" min="0" max="100" step="0.01">
+        </div>
+        
+        <button onclick="processStudent()">Calculate Grade</button>
+        
+       
+        <div id="result"></div>
+        
+        <div id="destructuringResult" class="output-section" style="display:none;"></div>
+        <div id="updatedResult" class="output-section" style="display:none;"></div>
+    </div>
+
+    <script>
+        function getGrade(marks) {
+            if (marks >= 90) return "A";
+            if (marks >= 80) return "B";
+            if (marks >= 70) return "C";
+            return "D";
+        }
+
+        function processStudent() {
+           
+            const id = parseInt(document.getElementById('id').value);
+            const name = document.getElementById('name').value;
+            const department = document.getElementById('department').value;
+            const marks = parseFloat(document.getElementById('marks').value);
+
+           
+            const student = {
+                id: id,
+                name: name,
+                department: department,
+                marks: marks
+            };
+
+            
+            const {id: studentId, name: studentName, department: dept, marks: studentMarks} = student;
+
+            
+            const updatedStudent = {
+                ...student,
+                grade: getGrade(studentMarks)
+            };
+
+            
+            document.getElementById('destructuringResult').style.display = 'block';
+            document.getElementById('destructuringResult').innerHTML = 
+                `<strong>Destructuring:</strong> ${studentId} ${studentName} ${dept} ${studentMarks}`;
+
+         
+            document.getElementById('updatedResult').style.display = 'block';
+            document.getElementById('updatedResult').innerHTML = 
+                `<strong>Updated Student:</strong><br>${JSON.stringify(updatedStudent, null, 2).replace(/"/g, "'")}`;
+
+         
+            const gradeClass = updatedStudent.grade;
+            document.getElementById('result').innerHTML = `
+Student: ${studentName} (${dept})
+Marks: ${marks}
+<div class="grade ${gradeClass}">Grade: ${updatedStudent.grade}</div>
+
+<strong>ES6 Features:</strong>
+✓ Object Destructuring
+✓ Spread Operator
+✓ Arrow Functions (internally)
+✓ Template Literals
+            `;
+        }
+
+        
+        window.onload = processStudent;
+    </script>
+</body>
+</html>
